@@ -1,10 +1,13 @@
-FROM php:7.4-apache
+FROM ubuntu
 
-RUN apt-get update \
- && apt-get install -y git libzip-dev default-mysql-client \
- && docker-php-ext-install zip opcache mysqli pdo pdo_mysql \
- && a2enmod rewrite \
- && sed -i 's!/var/www/html!/var/www/default/public!g' /etc/apache2/apache2.conf \
- && sed -i 's!/var/www/html!/var/www/default/public!g' /etc/apache2/sites-available/000-default.conf
+ENV DEBIAN_FRONTEND noninteractive
 
-WORKDIR /var/www
+RUN apt update && apt install -y tcl php unzip git wget
+
+RUN wget https://github.com/KumbiaPHP/KumbiaPHP/archive/refs/tags/v1.2.0.zip && unzip v1.2.0.zip && \
+    mkdir -p /PoC && mv KumbiaPHP-1.2.0/ /PoC
+
+COPY databases.php /PoC/KumbiaPHP-1.2.0/default/app/config/databases.php
+WORKDIR /PoC/KumbiaPHP-1.2.0/default/app
+RUN ls /PoC/KumbiaPHP-1.2.0/default/app
+CMD ["bin/phpserver"]
